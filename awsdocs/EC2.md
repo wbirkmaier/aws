@@ -28,7 +28,7 @@ We should get something similar to the following:
 Example output below:
 
 ``` 
-AWS Access Key ID [None]: AKIAJQARAIGdg3FGAFaEXTTQAWS Secret Access Key [None]: ASDGo---------------------------aF3raDefault region name [None]: us-east-1Default output format [None]: jsonwil@blackmirror:~$ ls .awsconfig	credentialswil@blackmirror:~$ cat .aws/config [default]output = jsonregion = us-east-1wil@blackmirror:~$ cat .aws/credentials [default]aws_access_key_id = AKIAJQARAIGdg3FGAFaEXTTQaws_secret_access_key = ASDGo---------------------------aF3ra```
+AWS Access Key ID [None]: AKIAadsasdadasdasdsadAFaEXTTQAWS Secret Access Key [None]: ASDGo---------------------------aF3raDefault region name [None]: us-east-1Default output format [None]: jsonwil@host:~$ ls .awsconfig	credentialswil@host:~$ cat .aws/config [default]output = jsonregion = us-east-1wil@host:~$ cat .aws/credentials [default]aws_access_key_id = AKIAadsasdadasdasdsadAFaEXTTQhostaws_secret_access_key = ASDGo---------------------------aF3ra```
 
 ###Amazon Regions and Availability Zones
 These are broken into multiple geographic regions, each region has multiple zones. When you launch an instance into a zone, it can only be seen in that zone. ***Be aware of this as you may not notice old Instances and Resources that may be sitting idle and costing you money!***
@@ -154,8 +154,8 @@ You can see your security groups with the following command:
 Let's create a new security group and open ports that allow the whole internet:
 
 ```
-wil@blackmirror:~$ aws ec2 create-security-group --group-name linuxSSH --description "SSH Port 22 for Linux"
-{    "GroupId": "sg-2aeb8350"}	wil@blackmirror:~$ aws ec2 authorize-security-group-ingress --group-name linuxSSH --protocol tcp --port 22 --cidr 0.0.0.0/0wil@blackmirror:~$ 
+wil@host:~$ aws ec2 create-security-group --group-name linuxSSH --description "SSH Port 22 for Linux"
+{    "GroupId": "sg-2aeb8350"}	wil@host:~$ aws ec2 authorize-security-group-ingress --group-name linuxSSH --protocol tcp --port 22 --cidr 0.0.0.0/0wil@host:~$ 
 ```
 
 Now we can launch an instance again, but with the above security group:
@@ -229,6 +229,51 @@ This is a cookbook on what has to be done to spin up a linux instance in AWS and
 * Connect to your instance
 
 ``` ssh -i mykepair.pem ec2-user@<publicIP> ```
+
+##Tags and tagging resources
+
+It is important to start using tags, early, as you will soon have a VPC that will be nothing but AWS UUIDs, and things will get confusing.  Some keys, such as ***name*** exist, and can be given a value to show up in the AWS Console.
+
+Here is an example, of how to label an AMI:
+
+```
+aws ec2 create-tags --resources ami-1a2b3c4d i-1234567890abcdef0 --tags Key=webserver,Value=   Key=stack,Value=Production
+```
+
+##Retrieving Instance Metadata
+
+Getting the external IP of the instance
+From within the instance you can do the following:
+
+```
+curl http://169.254.169.254/latest/meta-data/public-ipv4
+```
+
+Getting a list of attributes available to you:
+
+```
+curl http://169.254.169.254/latest/meta-data/
+ami-id
+ami-launch-index
+ami-manifest-path
+block-device-mapping/
+hostname
+instance-action
+instance-id
+instance-type
+kernel-id
+local-hostname
+local-ipv4
+mac
+network/
+placement/
+public-hostname
+public-ipv4
+public-keys/
+reservation-id
+security-groups
+services/
+```
 
 ##Console
 
